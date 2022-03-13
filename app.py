@@ -59,14 +59,14 @@ def prcp():
 
     # Query all precip info
     results = session.query(Measurement.prcp,Measurement.date).all()
-
+    #close session
     session.close()
 
+    #convert data to dictionary
     precip_data = {}
     for m in results:
         precip_data[m[1]] =m[0]
-
-    print(precip_data)
+    #report data
     return(jsonify(precip_data))
 
 @app.route('/api/v1.0/stations')
@@ -77,11 +77,13 @@ def stations():
 
     # Query distinct stations
     results = session.query(Measurement.station.distinct()).all()
-
+    #close session
     session.close()
+    #convert data to list
     stationlist = []
     for s in results:
         stationlist.append(s[0])
+    #report data
     return(jsonify(stationlist))
 
 
@@ -95,11 +97,14 @@ def tobs():
     # Query list of temperatures for 1 year
     
     results = session.query(Measurement.tobs).filter(Measurement.date >= begin_date).filter(Measurement.date <=last_date).order_by(Measurement.date).all()
-
+    #close session
     session.close()
+
+    #convert data to list
     temps = []
     for s in results:
         temps.append(s[0])
+    #report data
     return(jsonify(temps))
 
 @app.route('/api/v1.0/<startdate>')
@@ -112,9 +117,14 @@ def tempstatssimple(startdate):
     # Query list of temperatures for 1 year
     
     results = session.query(func.avg(Measurement.tobs),func.min(Measurement.tobs),func.max(Measurement.tobs)).filter(Measurement.date >= startdate)
-
+    #close session
     session.close()
+
+    #cleaning data unneeded report data immedietly
     return(jsonify([results[0][0],results[0][1],results[0][2]]))
+
+
+
 @app.route('/api/v1.0/<startdate>/<enddate>')
 def tempstats(startdate,enddate):
 
@@ -125,8 +135,12 @@ def tempstats(startdate,enddate):
     # Query list of temperatures for 1 year
     
     results = session.query(func.avg(Measurement.tobs),func.min(Measurement.tobs),func.max(Measurement.tobs)).filter(Measurement.date >= startdate).filter(Measurement.date < enddate)
-
+    #close session
     session.close()
+    #cleaning data unneeded report data immedietly
     return(jsonify([results[0][0],results[0][1],results[0][2]]))
+
+
+    #Launch server on run in debug mode. uses localhost:5000 in place of 127.0.0.1:5000 
 if __name__ == '__main__':
     app.run(host= 'localhost',port =5000,debug=True)
